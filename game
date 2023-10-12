@@ -1,0 +1,127 @@
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        char[][] board = new char[3][3];
+        initializeBoard(board);
+        boolean playerX = true;
+        boolean gameOver = false;
+
+        while (!gameOver) {
+            clearConsole();
+            char currentPlayer = playerX ? 'X' : 'O';
+            printColoredText("Player " + currentPlayer + ", enter row (0-2) and column (0-2): ", Color.CYAN);
+            int row, col;
+
+            do {
+                row = getUserInput("Row: ");
+                col = getUserInput("Column: ");
+            } while (row < 0 || row > 2 || col < 0 || col > 2 || board[row][col] != ' ');
+
+            board[row][col] = currentPlayer;
+            clearConsole();
+            printColoredBoard(board);
+            gameOver = checkWin(board, currentPlayer) || checkDraw(board);
+
+            playerX = !playerX;
+        }
+    }
+
+    public static void initializeBoard(char[][] board) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                board[i][j] = ' ';
+            }
+        }
+    }
+
+    public static void printColoredText(String text, Color color) {
+        for (char letter : text.toCharArray()) {
+            Color letterColor = getRandomColor();
+            System.out.print(letterColor.getCode() + letter);
+        }
+        System.out.print(color.getCode());
+    }
+
+    public static Color getRandomColor() {
+        Color[] colors = {Color.RED, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA};
+        return colors[(int) (Math.random() * colors.length)];
+    }
+
+    public static void clearConsole() {
+        System.out.print("\033[H\033[2J");
+    }
+
+    public static void printColoredBoard(char[][] board) {
+        System.out.println("-------------");
+        for (int i = 0; i < 3; i++) {
+            System.out.print("| ");
+            for (int j = 0; j < 3; j++) {
+                char mark = board[i][j];
+                Color cellColor = mark == 'X' ? Color.RED : (mark == 'O' ? Color.GREEN : Color.RESET);
+                printColoredText(" " + mark + " ", cellColor);
+                System.out.print("| ");
+            }
+            System.out.println("\n-------------");
+        }
+    }
+
+    public static boolean checkWin(char[][] board, char player) {
+        for (int i = 0; i < 3; i++) {
+            if (board[i][0] == player && board[i][1] == player && board[i][2] == player) {
+                printColoredText("Player " + player + " wins!", Color.YELLOW);
+                return true;
+            }
+            if (board[0][i] == player && board[1][i] == player && board[2][i] == player) {
+                printColoredText("Player " + player + " wins!", Color.YELLOW);
+                return true;
+            }
+        }
+        if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
+            printColoredText("Player " + player + " wins!", Color.YELLOW);
+            return true;
+        }
+        if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
+            printColoredText("Player " + player + " wins!", Color.YELLOW);
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean checkDraw(char[][] board) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (board[i][j] == ' ') {
+                    return false;
+                }
+            }
+        }
+        printColoredText("It's a draw!", Color.YELLOW);
+        return true;
+    }
+
+    public static int getUserInput(String message) {
+        Scanner scanner = new Scanner(System.in);
+        printColoredText(message, Color.CYAN);
+        return scanner.nextInt();
+    }
+}
+
+enum Color {
+    RESET("\u001B[0m"),
+    RED("\u001B[31m"),
+    GREEN("\u001B[32m"),
+    YELLOW("\u001B[33m"),
+    CYAN("\u001B[36m"),
+    MAGENTA("\u001B[35m");
+
+    private final String code;
+
+    Color(String code) {
+        this.code = code;
+    }
+
+    public String getCode() {
+        return code;
+    }
+}
